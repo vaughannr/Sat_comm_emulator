@@ -14,6 +14,7 @@ public:
     {
         pubSocket.connect("tcp://localhost:5555");
         subSocket.connect("tcp://localhost:5556");
+        subSocket.set(zmq::sockopt::rcvtimeo, 1000);
     }
 
     ~GroundStation()

@@ -22,7 +22,7 @@ void Satellite::tlmThread(){
     uint16_t count = 0u;
     while (!controlFlags.closeControlLoop) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        auto msgStr = std::string("Hello Ground Station!") + std::to_string(count);
+        auto msgStr = std::string("Hello Ground Station! Sending packet #") + std::to_string(count);
         zmq::message_t topic(std::string("sat1/tlm"));
         zmq::message_t message(msgStr.size());
         memcpy(message.data(), msgStr.c_str(), msgStr.size());

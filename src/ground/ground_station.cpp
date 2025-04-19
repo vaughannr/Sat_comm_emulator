@@ -31,15 +31,27 @@ void GroundStation::add_sub_topic(std::string topic){
 
 void GroundStation::subscriberThread() {
     // Allow the pub on satelites to bind to port
+    int attempts = 0;
     add_sub_topic("sat1/tlm");
     std::vector<zmq::message_t> message;
-    while (!controlFlags.closeSubscriberLoop) {
-        auto res = zmq::recv_multipart(subSocket, std::back_inserter(message));
-        assert(res && "recv failed");
-        assert(res == 2);
-        std::cout << "Ground station received message: " << message[1].to_string()
-            << " from topic: " << message[0].to_string() << std::endl;
+    try{
+        while (!controlFlags.closeSubscriberLoop && attempts < 3) {
+            auto res = zmq::recv_multipart(subSocket, std::back_inserter(message));
+            if (res){
+                std::cout << "Ground station received message: " << message[1].to_string()
+                    << " from topic: " << message[0].to_string() << std::endl;
+                message.clear();
+                attempts = 0;
+            }
+            else {
+                std::cout << "Received timeout: " << ++attempts << " attempts." << std::endl;
+            }
+        }
+    } catch(zmq::error_t& e){ 
+        std::cout << "Ground station ZMQError: " << e.what() << std::endl;
     }
+
+    std::cout << "Closing ground station subscriber loop" << std::endl;
 }
 
 void GroundStation::controlThread() {
@@ -48,4 +60,5 @@ void GroundStation::controlThread() {
         std::cout << "Ground station control loop iteration " << count++ <<  std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+    std::cout << "Closing ground station control loop" << std::endl;
 }
