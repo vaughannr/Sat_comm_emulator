@@ -1,3 +1,4 @@
+add_library(ground_lib ground_station.cpp)
 # Ground station application
-add_executable(ground main.cpp ground_station.cpp)
-target_link_libraries(ground zmq)
+add_executable(ground main.cpp)
+target_link_libraries(ground ground_lib)

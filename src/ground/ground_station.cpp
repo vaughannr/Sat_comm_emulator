@@ -38,27 +38,28 @@ void GroundStation::subscriberThread() {
         while (!controlFlags.closeSubscriberLoop && attempts < 3) {
             auto res = zmq::recv_multipart(subSocket, std::back_inserter(message));
             if (res){
-                std::cout << "Ground station received message: " << message[1].to_string()
-                    << " from topic: " << message[0].to_string() << std::endl;
+                logger->Info("Ground station received message: " + message[1].to_string()
+                    + "\n from topic: " + message[0].to_string());
                 message.clear();
                 attempts = 0;
             }
             else {
-                std::cout << "Received timeout: " << ++attempts << " attempts." << std::endl;
+                ++attempts;
+                logger->Warning( "Received timeout: " + std::to_string(attempts) + " attempts.");
             }
         }
     } catch(zmq::error_t& e){ 
-        std::cout << "Ground station ZMQError: " << e.what() << std::endl;
+        logger->Error("Ground station ZMQError: " + std::string(e.what()));
     }
 
-    std::cout << "Closing ground station subscriber loop" << std::endl;
+    logger->Info("Closing ground station subscriber loop");
 }
 
 void GroundStation::controlThread() {
     uint16_t count = 0;
     while (!controlFlags.closeControlLoop) {
-        std::cout << "Ground station control loop iteration " << count++ <<  std::endl;
+        logger->Info("Ground station control loop iteration " + std::to_string(count++));
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    std::cout << "Closing ground station control loop" << std::endl;
+    logger->Info("Closing ground station control loop");
 }

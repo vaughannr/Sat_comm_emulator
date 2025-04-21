@@ -1,19 +1,27 @@
+#ifndef GROUND_STATION_HPP
+#define GROUND_STATION_HPP
+
 #include <zmq.hpp>
 #include <atomic>
 #include <iostream>
+#include <memory>
+
+#include "logging.hpp"
+#include "str_const.hpp"
 
 
 class GroundStation
 {
 public:
     // GroundStation(/* args */);
-    GroundStation() : 
+    GroundStation(std::shared_ptr<Logger> logger_) : 
         context(1),
         subSocket(context, zmq::socket_type::sub),
-        pubSocket(context, zmq::socket_type::pub)
+        pubSocket(context, zmq::socket_type::pub),
+        logger(logger_)
     {
-        pubSocket.connect("tcp://localhost:5555");
-        subSocket.connect("tcp://localhost:5556");
+        pubSocket.connect(params::ground_pub_address);
+        subSocket.connect(params::ground_sub_address);
         subSocket.set(zmq::sockopt::rcvtimeo, 1000);
     }
 
@@ -22,7 +30,7 @@ public:
         pubSocket.close();
         subSocket.close();
         context.close();
-        std::cout << "Ground station closed" << std::endl;
+        logger->Info("Ground station closed");
     }
 
 
@@ -36,5 +44,9 @@ private:
     zmq::context_t context;
     zmq::socket_t subSocket;
     zmq::socket_t pubSocket;
+    std::shared_ptr<Logger> logger;
+
 
 };
+
+#endif

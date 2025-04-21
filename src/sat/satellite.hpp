@@ -1,23 +1,28 @@
 #include <zmq.hpp>
 #include <atomic>
 #include <iostream>
+#include <memory>
+
+#include "str_const.hpp"
+#include "logging.hpp"
 
 class Satellite {
 public:
-    Satellite(/* args */) :
+    Satellite(std::shared_ptr<Logger> logger_) :
         context(1),
         subSocket(context, zmq::socket_type::sub),
-        pubSocket(context, zmq::socket_type::pub)
+        pubSocket(context, zmq::socket_type::pub),
+        logger(logger_)
     {
-        pubSocket.connect("tcp://localhost:5555");
-        subSocket.connect("tcp://localhost:5556");
+        pubSocket.connect(params::sat_pub_address);
+        subSocket.connect(params::ground_sub_address);
     }
 
     ~Satellite() {
         pubSocket.close();
         subSocket.close();
         context.close();
-        std::cout << "Satellite closed" << std::endl;
+        logger->Info("Satellite closed");
     }
 
     void tlmThread();
@@ -28,5 +33,6 @@ private:
     zmq::context_t context;
     zmq::socket_t subSocket;
     zmq::socket_t pubSocket;
+    std::shared_ptr<Logger> logger;
 };
 

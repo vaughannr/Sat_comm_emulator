@@ -18,7 +18,7 @@ void Satellite::runThreads(){
 void Satellite::tlmThread(){
     std::signal(SIGINT, sig_handler);
     std::signal(SIGTERM, sig_handler);
-    std::cout << "Satellite tlm loop" << std::endl;
+    logger->Info("Starting satellite tlm pub loop");
     uint16_t count = 0u;
     while (!controlFlags.closeControlLoop) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -27,7 +27,8 @@ void Satellite::tlmThread(){
         zmq::message_t message(msgStr.size());
         memcpy(message.data(), msgStr.c_str(), msgStr.size());
 
-        std::cout << "Sending message: " << message.to_string() << std::endl;
+        logger->Info("Sending message: " + message.to_string());
+
         pubSocket.send(topic, zmq::send_flags::sndmore);
         pubSocket.send(message, zmq::send_flags::dontwait);
         count++;
