@@ -15,7 +15,7 @@ public:
         logger(logger_)
     {
         pubSocket.connect(params::sat_pub_address);
-        subSocket.connect(params::ground_sub_address);
+        subSocket.connect(params::sat_sub_address);
     }
 
     ~Satellite() {
@@ -26,7 +26,9 @@ public:
     }
 
     void tlmThread();
+    void listenThread();
     void runThreads();
+    void add_sub_topic(std::string topic);
 
 private:
     /* data */

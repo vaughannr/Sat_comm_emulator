@@ -27,12 +27,13 @@ void GroundStation::runThreads() {
 
 void GroundStation::add_sub_topic(std::string topic){
     subSocket.set(zmq::sockopt::subscribe, topic);
+    logger->Info("Ground station subscribed to topic: " + topic);
 }
 
 void GroundStation::subscriberThread() {
     // Allow the pub on satelites to bind to port
     int attempts = 0;
-    add_sub_topic("sat1/tlm");
+    add_sub_topic(topics::sat1_tlm);
     std::vector<zmq::message_t> message;
     try{
         while (!controlFlags.closeSubscriberLoop && attempts < 3) {
@@ -61,5 +62,12 @@ void GroundStation::controlThread() {
         logger->Info("Ground station control loop iteration " + std::to_string(count++));
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+    
+    logger->Info("Sending cmd to close satellite");
+    zmq::message_t topic(topics::ground_ctrl);
+    zmq::message_t message(std::string("close"));
+    pubSocket.send(topic, zmq::send_flags::sndmore);
+    pubSocket.send(message, zmq::send_flags::dontwait);
+
     logger->Info("Closing ground station control loop");
 }
