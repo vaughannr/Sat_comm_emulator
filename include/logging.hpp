@@ -2,11 +2,11 @@
 #define LOGGER_HPP
 
 #include <glog/logging.h>
-#include <glog/log_severity.h>
 
 class Logger {
  public:
-  Logger(const std::string& name, const std::string& log_dir)
+  Logger(const std::string& name = "log",
+         const std::string& log_dir = "logs/log")
       : name_(name), log_dir_(log_dir) {
     google::InitGoogleLogging(name_.c_str());
     google::SetLogDestination(google::INFO, log_dir_.c_str());
@@ -22,4 +22,4 @@ class Logger {
   std::string log_dir_;
 };
 
-#endif // LOGGER_HPP
+#endif  // LOGGER_HPP

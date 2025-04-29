@@ -1,0 +1,14 @@
+Checks: '-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*'
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*'
+AnalyzeTemporaryDtors: false
+FormatStyle: 'Google'
+User: ''
+CheckOptions:
+  - key: modernize-use-nullptr.NullMacros
+    value: 'NULL'
+  - key: cppcoreguidelines-pro-type-member-init.HaltOnMissingInitializers
+    value: 'false'
+  - key: modernize-use-auto.MinTypeNameLength
+    value: '5'
+
