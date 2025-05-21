@@ -11,6 +11,7 @@
 #include "control_flags.hpp"
 
 static ControlFlags controlFlags;
+static constexpr int kMaxTimeoutAttempts = 3;
 
 void sig_handler(int sig) {
   std::cout << "Received signal: " << sig << std::endl;
@@ -52,21 +53,18 @@ void GroundStation::subscriberThread() {
   std::vector<zmq::message_t> messages;
   messages.reserve(2);
   int attempts = 0;
-  try {
-    while (!controlFlags.closeSubscriberLoop && attempts < 3) {
-      auto [res, msg] = recv_tlm(messages);
-      if (res) {
-        logger_->Info("Ground station received message: " + msg);
-        attempts = 0;
-      } else {
-        ++attempts;
-        logger_->Warning("Received timeout: " + std::to_string(attempts) +
-                         " attempts.");
-      }
-      messages.clear();
+  while (running_ && !controlFlags.closeSubscriberLoop &&
+         attempts < kMaxTimeoutAttempts) {
+    auto [res, msg] = recv_tlm(messages);
+    if (res) {
+      logger_->Info("Ground station received message: " + msg);
+      attempts = 0;
+    } else {
+      ++attempts;
+      logger_->Warning("Received timeout: " + std::to_string(attempts) +
+                       " attempts.");
     }
-  } catch (zmq::error_t& e) {
-    logger_->Error("Ground station ZMQError: " + std::string(e.what()));
+    messages.clear();
   }
 
   logger_->Info("Closing ground station subscriber loop");
@@ -74,14 +72,15 @@ void GroundStation::subscriberThread() {
 
 void GroundStation::controlThread() {
   uint16_t count = 0;
-  while (!controlFlags.closeControlLoop) {
+  while (running_ && !controlFlags.closeControlLoop) {
     logger_->Info("Ground station control loop iteration " +
                   std::to_string(count++));
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
 
   logger_->Info("Sending cmd to close satellite");
   send_command(topics::ground_ctrl, "close");
+  running_ = false;
 
   logger_->Info("Closing ground station control loop");
 }

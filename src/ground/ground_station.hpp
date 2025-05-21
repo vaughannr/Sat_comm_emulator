@@ -22,7 +22,8 @@ class GroundStation {
         pubSocket_(*context_, zmq::socket_type::pub),
         logger_(logger),
         pub_address_(pub_address),
-        sub_address_(sub_address) {
+        sub_address_(sub_address),
+        running_(true) {
     logger_->Info("Constructing ground station");
     pubSocket_.connect(pub_address_);
     subSocket_.connect(sub_address_);
@@ -44,6 +45,8 @@ class GroundStation {
   void send_command(std::string topic, std::string cmd);
   std::tuple<zmq::recv_result_t, std::string> recv_tlm(
       std::vector<zmq::message_t>& messages);
+  void stop() { running_ = false; }
+  bool is_running() { return running_; }
 
  private:
   /* data */
@@ -53,6 +56,7 @@ class GroundStation {
   std::shared_ptr<Logger> logger_;
   std::string pub_address_;
   std::string sub_address_;
+  bool running_;
 };
 
 #endif
