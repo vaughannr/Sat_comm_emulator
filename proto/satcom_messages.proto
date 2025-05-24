@@ -1,0 +1,36 @@
+// proto/satcom_messages.proto
+syntax = "proto3";
+
+package satcom;
+
+// Telemetry data sent from satellite to ground control
+message TelemetryData {
+    double timestamp = 1;
+    double altitude = 2;
+    double latitude = 3;
+    double longitude = 4;
+    double battery_level = 5;
+    double temperature = 6;
+}
+
+// Commands sent from ground control to satellite
+message Command {
+    enum CommandType {
+        UNKNOWN = 0;
+        CHANGE_ORBIT = 1;
+        TAKE_PHOTO = 2;
+        POWER_SAVE = 3;
+        RESTART = 4;
+        STOP = 5;
+    }
+
+    double timestamp = 1;
+    CommandType type = 2;
+    map<string, string> parameters = 3;
+}
+
+// Response to commands
+message CommandResponse {
+    bool success = 1;
+    string message = 2;
+}
