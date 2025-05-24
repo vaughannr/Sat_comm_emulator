@@ -4,6 +4,7 @@
 #include <zmq.hpp>
 
 #include "logging.hpp"
+#include "satcom_messages.pb.h"
 #include "str_const.hpp"
 
 class Satellite {
@@ -27,12 +28,21 @@ class Satellite {
   void tlmThread();
   void listenThread();
   void runThreads();
-  void add_sub_topic(std::string topic);
+  void addSubTopic(std::string topic);
+  void processCmd(const satcom::Command& cmd);
+  void updateTelemetry();
+  satcom::TelemetryData generateTelemetry();
 
  private:
-  /* data */
   zmq::context_t context;
   zmq::socket_t subSocket;
   zmq::socket_t pubSocket;
   std::shared_ptr<Logger> logger;
+
+  /* data */
+  double altitude_;       // meters
+  double latitude_;       // degrees
+  double longitude_;      // degrees
+  double battery_level_;  // percentage
+  double temperature_;    // Celsius
 };

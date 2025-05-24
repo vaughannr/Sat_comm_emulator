@@ -1,7 +1,7 @@
 Checks: '-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*'
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*'
-AnalyzeTemporaryDtors: false
+# AnalyzeTemporaryDtors: false
 FormatStyle: 'Google'
 User: ''
 CheckOptions:
